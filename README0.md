@@ -1,90 +1,49 @@
 # 📊 Value at Risk (VaR) – S&P 500
 
-Ce projet implémente trois méthodes de calcul de la **Value at Risk (VaR)** :
+Ce projet implémente trois méthodes de calcul de la **Value at Risk (VaR)** et un **backtest rigoureux**.
 
-- VaR paramétrique  
-- VaR historique  
-- VaR Monte Carlo  
-
-Un **backtest** est ensuite réalisé pour évaluer la qualité des modèles.
-
-Code principal : `MonteCarlo.py`
+L’objectif est double :
+- estimer le risque de perte à 1 jour
+- vérifier si les modèles sont bien calibrés
 
 ---
 
-# 🔎 Résultat du run
+# 📊 Données
 
-- VaR paramétrique : **1.8169 %**
-- VaR historique : **1.6649 %**
-- VaR Monte Carlo : **1.9257 %**
+- Actif : S&P 500 (Très aisément modifiable)
+- Source : Yahoo Finance
+- Donnée utilisée : prix ajusté
 
-Backtest (100 jours) :
+On construit :
 
-| Méthode | Violations | Fréquence |
-|--------|----------|----------|
-| Historique | 4 | 4 % |
-| Paramétrique | 2 | 2 % |
-| Monte Carlo | 4 | 4 % |
-| Théorique | - | 5 % |
-
-### Interprétation
-
-- Les résultats sont **globalement cohérents**.
-- Historique et Monte Carlo sont proches du **5 % attendu**.
-- Paramétrique est **plus conservatrice**.
-- Aucune méthode ne semble aberrante.
-
-⚠️ Attention : 100 observations est un échantillon **faible**. Les conclusions restent limitées.
-
----
-
-# 📌 Définition de la VaR
-
-La VaR à 95 % représente la **perte maximale** que l’on ne dépasse pas avec 95 % de probabilité sur un jour.
-
-Exemple :  
-VaR = 2 % → il y a 5 % de chances de perdre **plus de 2 %** en un jour.
-
----
-
-# ⚙️ Données
-
-- Actif : S&P 500 (`^GSPC`)
-- Période : depuis 2016
-- Données : prix ajustés
-
-On calcule :
-
-- Rendements simples :  
-
+- Rendement simple :
 \[
 R_t = \frac{P_t - P_{t-1}}{P_{t-1}}
 \]
 
-- Log-rendements :  
-
+- Log-rendement :
 \[
 r_t = \log\left(\frac{P_t}{P_{t-1}}\right)
 \]
 
+👉 Les log-rendements sont utilisés pour Monte Carlo.
+
 ---
 
-# 📐 Méthodes de calcul
+# 📐 Méthodes de VaR
 
 ## 1. VaR paramétrique
 
-Hypothèse : les rendements suivent une **loi normale**.
+Hypothèse : les rendements suivent une loi normale.
 
 \[
 \text{VaR} = -(\mu + \sigma z_{0.05})
 \]
 
-- \(\mu\) : moyenne empirique  
-- \(\sigma\) : écart-type  
-- \(z_{0.05}\) : quantile gaussien  
+- estimation empirique de \(\mu\) et \(\sigma\)
+- quantile gaussien
 
-✔️ Simple  
-❌ Hypothèse forte
+👉 Méthode rapide mais dépend fortement de l’hypothèse de normalité.
 
 ---
 
@@ -93,19 +52,53 @@ Hypothèse : les rendements suivent une **loi normale**.
 Principe : utiliser directement les données passées.
 
 Étapes :
-1. Trier les rendements
-2. Prendre le quantile 5 %
+- calcul des pertes passées
+- extraction du quantile 95 %
 
-✔️ Aucun modèle  
-❌ Dépend du passé uniquement
+👉 Pas d’hypothèse de loi  
+👉 Mais dépend entièrement du passé
 
 ---
 
 ## 3. VaR Monte Carlo
 
-Principe : simuler des scénarios futurs.
+### 📐 Modèle théorique
 
-Modèle utilisé :
+On suppose que le prix suit un **mouvement brownien géométrique (GBM)** :
+
+\[
+\frac{dS_t}{S_t} = \mu dt + \sigma dW_t
+\]
+
+#### Hypothèses
+
+- rendements gaussiens  
+- volatilité constante  
+- pas de sauts  
+- indépendance des incréments  
+
+---
+
+#### Conséquence
+
+Les log-rendements sont normaux :
+
+\[
+\ln\left(\frac{S_T}{S_0}\right) \sim \mathcal{N}\left(\left(\mu - \frac{\sigma^2}{2}\right)T,\ \sigma^2 T\right)
+\]
+
+---
+
+#### Formule utilisée
+
+\[
+S_T = S_0 \exp\left(\left(\mu - \frac{\sigma^2}{2}\right)T + \sigma \sqrt{T} Z\right)
+\quad \text{avec } Z \sim \mathcal{N}(0,1)
+\]
+
+👉 Dans le code, on prend implicitement \(T = 1\) jour.
+
+On simule des prix futurs via :
 
 \[
 S_{t+1} = S_t \exp\left(\mu - \frac{\sigma^2}{2} + \sigma Z\right)
@@ -113,45 +106,46 @@ S_{t+1} = S_t \exp\left(\mu - \frac{\sigma^2}{2} + \sigma Z\right)
 
 avec \(Z \sim \mathcal{N}(0,1)\)
 
-Étapes :
-1. Simuler \(N\) prix futurs  
-2. Calculer les pertes :
+Puis :
+
 \[
 L = \frac{S_t - S_{t+1}}{S_t}
 \]
-3. Prendre le quantile 95 %
 
-✔️ Flexible  
-❌ Dépend du modèle
+👉 On génère N scénarios  
+👉 On prend le quantile 95 %
 
 ---
 
-# ⚠️ Choix arbitraires
+# ⚠️ Choix arbitraires (IMPORTANT)
 
-Certains choix ne sont pas uniques :
+Plusieurs choix influencent directement les résultats :
 
 - Niveau de confiance : **95 %**
-- Nombre de simulations : **5000**
-- Fenêtre de calibration : **500 jours**
+- Nombre de simulations Monte Carlo : **5000**
+- Taille de la fenêtre d’estimation : **500 jours**
 - Taille du backtest : **100 jours**
-- Hypothèse gaussienne
+- Modèle gaussien pour les rendements
 - Utilisation des log-rendements
+- Horizon fixé implicitement à 1 jour
 
-Ces choix influencent les résultats.
+👉 Ces choix ne sont pas uniques  
+👉 D’autres paramètres donneraient des résultats différents 
+👉 Ils ne changent pas la cohérence du modèle. 
+
+On aurait pu prendre la VaR à **99 %**, augmenter la taille du backtest... Le nombre de simulations de Monte Carlo a été fixé à **5000** car une stabilisation de la VaR a été observée aux alentours de cette valeur. 
 
 ---
 
-# 🔁 Backtest
+# 🔁 Backtest (partie centrale du projet)
 
 ## Principe
 
-On teste si la VaR est cohérente avec la réalité.
+À chaque date t :
 
-À chaque date \(t\) :
-
-1. On calcule la VaR avec les données passées
-2. On observe la perte réelle au jour \(t+1\)
-3. On vérifie :
+1. On estime la VaR avec les données passées
+2. On observe la perte réelle au jour t+1
+3. On compare
 
 \[
 \text{Violation} = \mathbf{1}_{\{ \text{perte réelle} > \text{VaR} \}}
@@ -159,7 +153,7 @@ On teste si la VaR est cohérente avec la réalité.
 
 ---
 
-## Fréquence de violation
+## Interprétation mathématique
 
 Si la VaR est correcte :
 
@@ -167,27 +161,62 @@ Si la VaR est correcte :
 \mathbb{P}(\text{violation}) = 1 - \alpha = 5\%
 \]
 
-On compare :
+Sur N observations :
 
-- fréquence observée  
-- fréquence théorique  
-
----
-
-## Interprétation
-
-- Trop de violations → VaR **sous-estime** le risque  
-- Pas assez → VaR **surestime** le risque  
-- Proche de 5 % → modèle **bien calibré**
+- nombre attendu ≈ 5 % × N
 
 ---
 
-# 📊 Conclusion
+## Interprétation financière
 
-- Les trois méthodes donnent des résultats proches.
-- Monte Carlo est la plus prudente.
-- Paramétrique est conservatrice.
-- Historique est simple mais efficace.
+- Trop de violations → risque sous-estimé
+- Trop peu → modèle trop conservateur
+- Proche de 5 % → modèle cohérent
 
-👉 Aucun modèle n’est parfait.  
-👉 Le choix dépend du contexte et des hypothèses.
+---
+
+# 🔎 Résultats obtenus
+
+- VaR paramétrique : 1.8169 %
+- VaR historique : 1.6649 %
+- VaR Monte Carlo : 1.9257 %
+
+Backtest :
+
+- Historique : 4 %
+- Paramétrique : 2 %
+- Monte Carlo : 4 %
+- Théorique : 5 %
+
+---
+
+# 📊 Analyse des résultats
+
+- Les trois méthodes sont cohérentes en ordre de grandeur
+- Monte Carlo donne la VaR la plus élevée → plus prudente
+- Paramétrique donne peu de violations → surestime légèrement le risque
+- Historique est bien calibrée sur cet échantillon
+
+👉 Aucun modèle ne domine clairement
+
+---
+
+# ⚠️ Limites
+
+- Backtest sur seulement 100 observations
+- Hypothèse gaussienne discutable
+- Marché non stationnaire
+- Sensibilité aux paramètres
+
+---
+
+# 📌 Conclusion
+
+Ce projet montre que :
+
+- plusieurs méthodes de VaR existent
+- leurs résultats dépendent fortement des hypothèses
+- le backtest est essentiel pour valider un modèle
+
+👉 La VaR n’est pas une vérité absolue  
+👉 C’est un outil dépendant du modèle
