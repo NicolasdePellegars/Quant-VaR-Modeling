@@ -17,14 +17,12 @@ L’objectif est double :
 On construit :
 
 - Rendement simple :
-$$
-R_t = \frac{P_t - P_{t-1}}{P_{t-1}}
-$$
+
+$$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 
 - Log-rendement :
-$$
-r_t = \log\left(\frac{P_t}{P_{t-1}}\right)
-$$
+
+$$r_t = \log\left(\frac{P_t}{P_{t-1}}\right)$$
 
 👉 Les log-rendements sont utilisés pour Monte Carlo.
 
@@ -186,11 +184,8 @@ Backtest :
 - Historique : 4 %
 - Paramétrique : 2 %
 - Monte Carlo : 4 %
-- Théorique : 5 %
 
 ---
-
-# 📊 Analyse des résultats
 
 # 📊 Analyse des résultats
 
