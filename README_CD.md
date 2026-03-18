@@ -192,14 +192,61 @@ Backtest :
 
 # 📊 Analyse des résultats
 
-- Les trois méthodes sont cohérentes en ordre de grandeur
-- Monte Carlo donne la VaR la plus élevée → plus prudente
-- Paramétrique donne peu de violations → surestime légèrement le risque
-- Historique est bien calibrée sur cet échantillon
+# 📊 Analyse des résultats
 
-👉 Aucun modèle ne domine clairement
+Les trois méthodes donnent des niveaux de VaR proches, mais leurs différences permettent d’interpréter la structure du risque.
+
+- La VaR Monte Carlo est la plus élevée (1.9257 %).  
+👉 Cela suggère que la volatilité estimée est significative et que le modèle gaussien appliqué aux log-rendements génère des scénarios extrêmes plus marqués.  
+👉 Cela peut être cohérent avec une période incluant des phases de forte incertitude (ex : crises, chocs macro, hausse des taux).
+
+- La VaR historique est plus faible (1.6649 %).  
+👉 Cela signifie que les pertes extrêmes observées dans le passé récent sont moins sévères que celles générées par le modèle.  
+👉 On peut en déduire que la fenêtre historique utilisée ne contient pas suffisamment d’événements extrêmes, ou que les chocs passés sont moins violents que ceux implicites dans la volatilité actuelle.
+
+- La VaR paramétrique est intermédiaire mais avec seulement 2 % de violations.  
+👉 Elle semble surestimer le risque dans le backtest.  
+👉 Cela peut indiquer que l’hypothèse gaussienne lisse les données et attribue trop de poids à la volatilité moyenne, sans bien capturer la dynamique réelle des queues de distribution.
 
 ---
+
+## Lecture en termes de structure de marché
+
+Ces résultats peuvent être interprétés comme suit :
+
+- L’écart entre VaR historique et Monte Carlo suggère une possible **instabilité récente du marché**.  
+👉 Le modèle (via σ) intègre une volatilité élevée, mais celle-ci ne s’est pas encore traduite par suffisamment de pertes extrêmes dans les données historiques.
+
+- Le faible nombre de violations pour la VaR paramétrique peut indiquer que :  
+👉 soit le marché a été relativement calme sur la période de backtest,  
+👉 soit la distribution réelle des rendements est moins extrême que la gaussienne sur cet intervalle.
+
+- Le fait que Monte Carlo et historique soient proches en fréquence de violation (4 %) suggère que :  
+👉 malgré leurs différences de construction, ces deux approches capturent relativement bien le risque empirique sur cette période.
+
+---
+
+## Interprétation économique
+
+On peut formuler l’hypothèse suivante :
+
+👉 Le marché présente une volatilité élevée (captée par σ),  
+mais sans occurrence récente de chocs extrêmes équivalents dans la fenêtre historique.
+
+Cela correspond typiquement à des phases :
+
+- post-crise (volatilité encore élevée mais marché stabilisé)
+- ou périodes d’incertitude macro (inflation, taux, géopolitique)
+
+---
+
+👉 En résumé :
+
+- Historique → dépend du passé observé  
+- Paramétrique → dépend de la structure du modèle  
+- Monte Carlo → dépend de la volatilité estimée  
+
+Les différences entre ces méthodes donnent une information sur la **forme de la distribution des rendements et l’état du marché**.
 
 # ⚠️ Limites
 
