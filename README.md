@@ -24,7 +24,7 @@ $$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 
 $$r_t = \log\left(\frac{P_t}{P_{t-1}}\right)$$
 
-👉 Les log-rendements sont utilisés pour Monte Carlo.
+Les log-rendements sont utilisés pour Monte Carlo.
 
 ---
 
@@ -41,7 +41,7 @@ $$
 - estimation empirique de $\mu$ et $\sigma$
 - quantile gaussien
 
-👉 Méthode rapide mais dépend fortement de l’hypothèse de normalité.
+Méthode rapide mais dépend fortement de l’hypothèse de normalité.
 
 ---
 
@@ -53,8 +53,8 @@ Principe : utiliser directement les données passées.
 - calcul des pertes passées
 - extraction du quantile 95 %
 
-👉 Pas d’hypothèse de loi  
-👉 Mais dépend entièrement du passé
+ Pas d’hypothèse de loi  
+ Mais dépend entièrement du passé
 
 ---
 
@@ -94,7 +94,7 @@ S_T = S_0 \exp\left(\left(\mu - \frac{\sigma^2}{2}\right)T + \sigma \sqrt{T} Z\r
 \quad \text{avec } Z \sim \mathcal{N}(0,1)
 $$
 
-👉 Dans le code, on prend implicitement $T = 1$ jour.
+Dans le code, on prend implicitement $T = 1$ jour.
 
 On simule des prix futurs via :
 
@@ -110,8 +110,8 @@ $$
 L = \frac{S_t - S_{t+1}}{S_t}
 $$
 
-👉 On génère N scénarios  
-👉 On prend le quantile 95 %
+On génère N scénarios  
+On prend le quantile 95 %
 
 ---
 
@@ -127,9 +127,9 @@ Plusieurs choix influencent directement les résultats :
 - Utilisation des log-rendements
 - Horizon fixé implicitement à 1 jour
 
-👉 Ces choix ne sont pas uniques  
-👉 D’autres paramètres donneraient des résultats différents  
-👉 Ils ne changent pas la cohérence du modèle. 
+Ces choix ne sont pas uniques  
+D’autres paramètres donneraient des résultats différents  
+Ils ne changent pas la cohérence du modèle. 
 
 On aurait pu prendre la VaR à **99 %**, augmenter la taille du backtest... Le nombre de simulations de Monte Carlo a été fixé à **5000** car une stabilisation de la VaR a été observée aux alentours de cette valeur. 
 
@@ -192,16 +192,16 @@ Backtest :
 Les trois méthodes donnent des niveaux de VaR proches, mais leurs différences permettent d’interpréter la structure du risque.
 
 - La VaR Monte Carlo est la plus élevée (1.9257 %).  
-👉 Cela suggère que la volatilité estimée est significative et que le modèle gaussien appliqué aux log-rendements génère des scénarios extrêmes plus marqués.  
-👉 Cela peut être cohérent avec une période incluant des phases de forte incertitude (ex : crises, chocs macro, hausse des taux).
+Cela suggère que la volatilité estimée est significative et que le modèle gaussien appliqué aux log-rendements génère des scénarios extrêmes plus marqués.  
+Cela peut être cohérent avec une période incluant des phases de forte incertitude (ex : crises, chocs macro, hausse des taux).
 
 - La VaR historique est plus faible (1.6649 %).  
-👉 Cela signifie que les pertes extrêmes observées dans le passé récent sont moins sévères que celles générées par le modèle.  
-👉 On peut en déduire que la fenêtre historique utilisée ne contient pas suffisamment d’événements extrêmes, ou que les chocs passés sont moins violents que ceux implicites dans la volatilité actuelle.
+Cela signifie que les pertes extrêmes observées dans le passé récent sont moins sévères que celles générées par le modèle.  
+On peut en déduire que la fenêtre historique utilisée ne contient pas suffisamment d’événements extrêmes, ou que les chocs passés sont moins violents que ceux implicites dans la volatilité actuelle.
 
 - La VaR paramétrique est intermédiaire mais avec seulement 2 % de violations.  
-👉 Elle semble surestimer le risque dans le backtest.  
-👉 Cela peut indiquer que l’hypothèse gaussienne lisse les données et attribue trop de poids à la volatilité moyenne, sans bien capturer la dynamique réelle des queues de distribution.
+Elle semble surestimer le risque dans le backtest.  
+Cela peut indiquer que l’hypothèse gaussienne lisse les données et attribue trop de poids à la volatilité moyenne, sans bien capturer la dynamique réelle des queues de distribution.
 
 ---
 
@@ -210,14 +210,13 @@ Les trois méthodes donnent des niveaux de VaR proches, mais leurs différences 
 Ces résultats peuvent être interprétés comme suit :
 
 - L’écart entre VaR historique et Monte Carlo suggère une possible **instabilité récente du marché**.  
-👉 Le modèle (via σ) intègre une volatilité élevée, mais celle-ci ne s’est pas encore traduite par suffisamment de pertes extrêmes dans les données historiques.
+Le modèle (via σ) intègre une volatilité élevée, mais celle-ci ne s’est pas encore traduite par suffisamment de pertes extrêmes dans les données historiques.
 
 - Le faible nombre de violations pour la VaR paramétrique peut indiquer que :  
-👉 soit le marché a été relativement calme sur la période de backtest,  
-👉 soit la distribution réelle des rendements est moins extrême que la gaussienne sur cet intervalle.
+  soit le marché a été relativement calme sur la période de backtest,  
+  soit la distribution réelle des rendements est moins extrême que la gaussienne sur cet intervalle.
 
-- Le fait que Monte Carlo et historique soient proches en fréquence de violation (4 %) suggère que :  
-👉 malgré leurs différences de construction, ces deux approches capturent relativement bien le risque empirique sur cette période.
+- Le fait que Monte Carlo et historique soient proches en fréquence de violation (4 %) suggère que malgré leurs différences de construction, ces deux approches capturent relativement bien le risque empirique sur cette période.
 
 ---
 
@@ -225,7 +224,7 @@ Ces résultats peuvent être interprétés comme suit :
 
 On peut formuler l’hypothèse suivante :
 
-👉 Le marché présente une volatilité élevée (captée par σ),  
+Le marché présente une volatilité élevée (captée par σ),  
 mais sans occurrence récente de chocs extrêmes équivalents dans la fenêtre historique.
 
 Cela correspond typiquement à des phases :
@@ -235,7 +234,7 @@ Cela correspond typiquement à des phases :
 
 ---
 
-👉 En résumé :
+En résumé :
 
 - Historique → dépend du passé observé  
 - Paramétrique → dépend de la structure du modèle  
@@ -260,5 +259,5 @@ Ce projet montre que :
 - leurs résultats dépendent fortement des hypothèses
 - le backtest est essentiel pour valider un modèle
 
-👉 La VaR n’est pas une vérité absolue  
-👉 C’est un outil dépendant du modèle
+La VaR n’est pas une vérité absolue  
+C’est un outil dépendant du modèle
