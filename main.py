@@ -3,7 +3,7 @@ import numpy as np
 import yfinance as yf 
 
 from math import floor, sqrt, exp
-from scipy.stats import norm #importe la loi gaussienne
+from scipy.stats import norm 
 
 df = yf.download("^GSPC", start="2016-02-12", interval="1d", auto_adjust=False) 
 #auto_adjust = true : close est ajusté et on a pas de distinctions entre close et adjclose. 
