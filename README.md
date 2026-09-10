@@ -135,7 +135,7 @@ On aurait pu prendre la VaR à **99 %**, augmenter la taille du backtest... Le n
 
 ---
 
-# 🔁 Backtest (partie centrale du projet)
+# 🔁 Backtest
 
 ## Principe
 
