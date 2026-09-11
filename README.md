@@ -1,45 +1,45 @@
-# 📊 Value at Risk (VaR) – S&P 500
+# Value at Risk (VaR) – S&P 500
 
-Ce projet implémente trois méthodes de calcul de la **Value at Risk (VaR)** appuyées par un **backtest**.
+The project implements tree methods to compute **Value at Risk (VaR)** supported by a backtest **backtest**.
 
-L’objectif est double :
-- estimer le risque de perte à 1 jour
-- vérifier si les modèles sont bien calibrés
+There are two objectives :
+- to estimate the risk of a one-day loss 
+- to evaluate the quality of the VaR estimates using backtesting
 
 ---
 
-# 📊 Données
+# Data
 
-- Actif : S&P 500 (Très aisément modifiable)
+- Asset : S&P 500 (easily adjustable)
 - Source : Yahoo Finance
-- Donnée utilisée : prix ajusté
+- Data used : adjusted prices (to make historical prices comparable over time to avoid treating events such as dividends or stock splits as actual market losses)
 
-On construit :
+We compute :
 
-- Rendement simple :
+- Simple returns :
 
 $$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 
-- Log-rendement :
+- Log returns :
 
 $$r_t = \log\left(\frac{P_t}{P_{t-1}}\right)$$
 
-Les log-rendements sont utilisés pour Monte Carlo.
+Log returns are used for the Monte Carlo method.
 
 ---
 
-# 📐 Méthodes de VaR
+# VaR Methods
 
-## 1. VaR paramétrique
+## 1. Parametric VaR 
 
-Hypothèse : les rendements suivent une loi normale.
+Assumption : returns follow a normal distribution .
 
 $$
 \text{VaR} = -(\mu + \sigma z_{0.05})
 $$
 
-- estimation empirique de $\mu$ et $\sigma$
-- quantile gaussien
+- empirical estimation of $\mu$ and $\sigma$
+- Gaussian quantile
 
 Méthode rapide mais dépend fortement de l’hypothèse de normalité.
 
