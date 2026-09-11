@@ -41,45 +41,44 @@ $$
 - empirical estimation of $\mu$ and $\sigma$
 - Gaussian quantile
 
-Méthode rapide mais dépend fortement de l’hypothèse de normalité.
+Fast method but strongly dependent on the normality assumption
 
 ---
 
-## 2. VaR historique
+## 2.Historical VaR
 
-Principe : utiliser directement les données passées.
+Principle : directly use past data 
 
-Étapes :
-- calcul des pertes passées
-- extraction du quantile 95 %
+Steps :
+-Comput past losses
+- exxtract the 95 % quantile
 
- Pas d’hypothèse de loi  
- Mais dépend entièrement du passé
+No distribution assumption. However, the method depends entirely on past observations
 
 ---
 
-## 3. VaR Monte Carlo
+## 3. Monte Carlo VaR
 
-### 📐 Modèle théorique
+### Theorical Model
 
-On suppose que le prix suit un **mouvement brownien géométrique (GBM)** :
+We assume that the asset price follows a **Geometric Brownian Motion (GBM)** :
 
 $$
 \frac{dS_t}{S_t} = \mu dt + \sigma dW_t
 $$
 
-#### Hypothèses
+#### Assumptions
 
-- rendements gaussiens  
-- volatilité constante  
-- pas de sauts  
-- indépendance des incréments  
+- normally distributed returns   
+- constant vol  
+- no jump  
+- independant increments  
 
 ---
 
-#### Conséquence
+#### Consequence
 
-Les log-rendements sont normaux :
+Log returns are normally distributed :
 
 $$
 \ln\left(\frac{S_T}{S_0}\right) \sim \mathcal{N}\left(\left(\mu - \frac{\sigma^2}{2}\right)T,\ \sigma^2 T\right)
@@ -94,24 +93,24 @@ S_T = S_0 \exp\left(\left(\mu - \frac{\sigma^2}{2}\right)T + \sigma \sqrt{T} Z\r
 \quad \text{avec } Z \sim \mathcal{N}(0,1)
 $$
 
-Dans le code, on prend implicitement $T = 1$ jour.
+In the code, me implicitly use $T = 1$ jour.
 
-On simule des prix futurs via :
+Futur prices are simulated using :
 
 $$
 S_{t+1} = S_t \exp\left(\mu - \frac{\sigma^2}{2} + \sigma Z\right)
 $$
 
-avec $Z \sim \mathcal{N}(0,1)$
+with $Z \sim \mathcal{N}(0,1)$
 
-Puis :
+Then :
 
 $$
 L = \frac{S_t - S_{t+1}}{S_t}
 $$
 
-On génère N scénarios  
-On prend le quantile 95 %
+We generate $N$ scenarios.
+We take the 95% quantile.
 
 ---
 
